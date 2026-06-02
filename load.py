@@ -1,18 +1,18 @@
 # load.py
-# Loads the transformed DataFrame into SQLite or Supabase via SQLAlchemy
+# Loads transformed DataFrame into SQLite or Supabase via SQLAlchemy
+# Uses incremental loading — only inserts new dates, skips existing ones
 
 import logging
-from sqlalchemy import create_engine, text
 import pandas as pd
+from sqlalchemy import create_engine, text, inspect
 
 # ── Logger setup ──────────────────────────────────────────────────────────────
 logger = logging.getLogger(__name__)
 
 # ── Database config ───────────────────────────────────────────────────────────
-# Change this to "supabase" when ready for final submission
+# Change to "supabase" when ready for final submission
 DATABASE = "sqlite"
 
-# Supabase connection string
 # Replace with your actual Supabase URL when switching
 SUPABASE_URL = "postgresql://postgres:YOUR_PASSWORD@YOUR_HOST:5432/postgres"
 
@@ -21,9 +21,6 @@ def get_engine():
     """
     Creates and returns a SQLAlchemy engine.
     Uses SQLite locally or Supabase for cloud deployment.
-
-    Returns:
-        sqlalchemy.engine.Engine: Database engine object.
     """
     try:
         if DATABASE == "supabase":
@@ -32,7 +29,6 @@ def get_engine():
         else:
             engine = create_engine("sqlite:///chicago_weather.db", echo=False)
             logger.info("SQLite engine created. Database: chicago_weather.db")
-
         return engine
 
     except Exception as e:
@@ -42,38 +38,64 @@ def get_engine():
 
 def load_weather_data(df: pd.DataFrame, engine) -> None:
     """
-    Loads the transformed DataFrame into the weather_data table.
-    Replaces the table on every run for fresh API data.
+    Loads transformed DataFrame into weather_data table using
+    incremental loading — only inserts dates not already in the database.
 
     Args:
         df (pd.DataFrame): Cleaned DataFrame from transform_weather_data().
         engine: SQLAlchemy engine from get_engine().
     """
     try:
-        logger.info(f"Starting data load into {DATABASE.upper()}...")
+        logger.info(f"Starting incremental load into {DATABASE.upper()}...")
 
-        # ── Load DataFrame into weather_data table ────────────────────────────
-        # if_exists="replace" drops and recreates table on every run
-        # index=False prevents Pandas adding an extra index column
-        df.to_sql(
-            name="weather_data",
-            con=engine,
-            if_exists="replace",
-            index=False
-        )
-        logger.info(f"Successfully loaded {len(df)} rows into weather_data table.")
+        # ── Check if table exists ─────────────────────────────────────────────
+        inspector = inspect(engine)
+        table_exists = inspector.has_table("weather_data")
 
-        # ── Verify row count after load ───────────────────────────────────────
+        if not table_exists:
+            # ── First run — create table and load all rows ────────────────────
+            logger.info("Table does not exist. Creating and loading all rows...")
+            df.to_sql(
+                name="weather_data",
+                con=engine,
+                if_exists="replace",
+                index=False
+            )
+            logger.info(f"Initial load complete. {len(df)} rows inserted.")
+
+        else:
+            # ── Incremental run — only insert new dates ───────────────────────
+            logger.info("Table exists. Checking for new dates to insert...")
+
+            # Get existing dates from database
+            with engine.connect() as conn:
+                result = conn.execute(text("SELECT forecast_date FROM weather_data"))
+                existing_dates = [str(row[0]) for row in result]
+
+            logger.info(f"Found {len(existing_dates)} existing dates in database.")
+
+            # Filter to only new rows not already in database
+            df["forecast_date"] = df["forecast_date"].astype(str)
+            new_rows = df[~df["forecast_date"].isin(existing_dates)]
+
+            if len(new_rows) == 0:
+                logger.info("No new dates found. Database is already up to date.")
+            else:
+                # Insert only the new rows
+                new_rows.to_sql(
+                    name="weather_data",
+                    con=engine,
+                    if_exists="append",
+                    index=False
+                )
+                logger.info(f"Incremental load complete. {len(new_rows)} new rows inserted.")
+                logger.info(f"Skipped {len(df) - len(new_rows)} existing rows.")
+
+        # ── Verify final row count ────────────────────────────────────────────
         with engine.connect() as conn:
             result = conn.execute(text("SELECT COUNT(*) FROM weather_data"))
             row_count = result.scalar()
-
-            if row_count != len(df):
-                logger.warning(
-                    f"Row count mismatch! Expected {len(df)}, found {row_count}."
-                )
-            else:
-                logger.info(f"Verification: {row_count} rows confirmed in database. ")
+            logger.info(f"Verification: {row_count} total rows in database.")
 
     except Exception as e:
         logger.error(f"Failed to load data into database: {e}")
@@ -90,4 +112,4 @@ if __name__ == "__main__":
     df_clean = transform_weather_data(df_raw)
     engine   = get_engine()
     load_weather_data(df_clean, engine)
-    print("\nLoad complete! Check chicago_weather.db in your project folder.")
+    print("\nLoad complete!")
