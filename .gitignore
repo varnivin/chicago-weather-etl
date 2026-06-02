@@ -1,0 +1,20 @@
+# Database file — don't upload to GitHub
+chicago_weather.db
+
+# Log file — generated on each run
+pipeline.log
+
+# Environment variables — never upload passwords
+.env
+
+# Python cache files — not needed
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code settings — personal to your machine
+.vscode/
+
+# Windows system files
+Thumbs.db
+desktop.ini
