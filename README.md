@@ -147,16 +147,16 @@ Every pipeline run generates a pipeline.log file with timestamps for each step. 
 ## Screenshots
 
 ### Dashboard Overview
-![Dashboard Overview](screenshots/Screenshot1_Toppage_dashboard_v4.jpg)
+![Dashboard Overview](screenshots/Screenshot1%20_Top%20page_dashboard_v4.jpg)
 
 ### KPI Cards and Filters
-![KPI and Filters](screenshots/Screenshot2_FiltersKPI_dashboard_v4.jpg)
+![KPI and Filters](screenshots/Screenshot2%20_FiltersKPI_dashboard_v4.jpg)
 
 ### Smart Insight Panels
-![Smart Insights](screenshots/Screenshot3_SmartInsights_dashboard_v4.jpg)
+![Smart Insights](screenshots/Screenshot3%20_SmartInsights_dashboard_v4.jpg)
 
 ### Precipitation and Weather Category
-![Other Charts](screenshots/Screenshot4_othercharts_dashboard_v4.jpg)
+![Other Charts](screenshots/Screenshot4%20_othercharts_dashboard_v4.jpg)
 
 ### Filter in Action — Hot Days
-![Hot Filter](screenshots/Screenshot5_hotfilter_dashboard_v4.jpg)
+![Hot Filter](screenshots/Screenshot5%20_hotfilter_dashboard_v4.jpg)
