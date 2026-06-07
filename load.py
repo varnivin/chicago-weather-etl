@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 # ── Database config ───────────────────────────────────────────────────────────
 # Change to "supabase" when ready for final submission
-DATABASE = "sqlite"
+DATABASE = "supabase"
 
 # Replace with your actual Supabase URL when switching
-SUPABASE_URL = "postgresql://postgres:YOUR_PASSWORD@YOUR_HOST:5432/postgres"
+SUPABASE_URL = "postgresql://postgres:Chicagodatabase2026@db.mimtgltdqiequdyptkey.supabase.co:5432/postgres"
 
 
 def get_engine():

@@ -28,8 +28,9 @@ logger = logging.getLogger("etl_pipeline")
 
 # ── Database config ───────────────────────────────────────────────────────────
 # Change DATABASE to "supabase" and set SUPABASE_URL for cloud deployment
-DATABASE    = "sqlite"
-SUPABASE_URL = "postgresql://postgres:YOUR_PASSWORD@YOUR_HOST:5432/postgres"
+# DATABASE    = "sqlite"
+DATABASE    = "supabase"
+SUPABASE_URL = "postgresql://postgres.mimtgltdqiequdyptkey:Chicagodatabase2026@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
 
 
 # =============================================================================
