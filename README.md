@@ -1,6 +1,6 @@
 # Chicago Weather Intelligence — ETL Pipeline and Dashboard
 **Developer:** Nivin Varghese | MSBA 2026  
-**Course:** Data Engineering  
+**Course:** Pipeline to Insights 
 **Data Source:** Open-Meteo REST API  
 **Location:** Chicago, IL (41.85 N, -87.65 W)
 
